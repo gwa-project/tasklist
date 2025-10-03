@@ -1,10 +1,6 @@
 import mongoose from 'mongoose'
 
-const MONGODB_URI = process.env.MONGODB_URI
-
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local')
-}
+const MONGODB_URI = process.env.MONGODB_URI || ''
 
 type MongooseCache = {
   conn: typeof mongoose | null
@@ -27,8 +23,12 @@ export default async function connectDB(): Promise<typeof mongoose> {
     return cached.conn
   }
 
+  if (!MONGODB_URI) {
+    throw new Error('Please define the MONGODB_URI environment variable')
+  }
+
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI!, { bufferCommands: false }).then((connection) => {
+    cached.promise = mongoose.connect(MONGODB_URI, { bufferCommands: false }).then((connection) => {
       return connection
     })
   }
