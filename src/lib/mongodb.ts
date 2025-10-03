@@ -28,7 +28,7 @@ export default async function connectDB(): Promise<typeof mongoose> {
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, { bufferCommands: false }).then((connection) => {
+    cached.promise = mongoose.connect(MONGODB_URI!, { bufferCommands: false }).then((connection) => {
       return connection
     })
   }
