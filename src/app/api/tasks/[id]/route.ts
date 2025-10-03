@@ -7,19 +7,20 @@ import mongoose from 'mongoose';
 // GET single task
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
+    const { id } = await params;
 
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, message: 'Invalid task ID' },
         { status: 400 }
       );
     }
 
-    const task = await Task.findById(params.id).populate('project_id', 'name');
+    const task = await Task.findById(id).populate('project_id', 'name');
 
     if (!task) {
       return NextResponse.json(
@@ -41,12 +42,13 @@ export async function GET(
 // PUT update task
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
+    const { id } = await params;
 
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, message: 'Invalid task ID' },
         { status: 400 }
@@ -94,7 +96,7 @@ export async function PUT(
     }
 
     const task = await Task.findByIdAndUpdate(
-      params.id,
+      id,
       {
         name: body.name,
         status: body.status,
@@ -134,19 +136,20 @@ export async function PUT(
 // DELETE task
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
+    const { id } = await params;
 
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, message: 'Invalid task ID' },
         { status: 400 }
       );
     }
 
-    const task = await Task.findById(params.id);
+    const task = await Task.findById(id);
 
     if (!task) {
       return NextResponse.json(
@@ -156,7 +159,7 @@ export async function DELETE(
     }
 
     const projectId = task.project_id.toString();
-    await Task.findByIdAndDelete(params.id);
+    await Task.findByIdAndDelete(id);
 
     // Update project progress after deletion
     await updateProjectProgress(projectId);

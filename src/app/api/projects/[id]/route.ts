@@ -7,19 +7,20 @@ import mongoose from 'mongoose';
 // GET single project
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
+    const { id } = await params;
 
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, message: 'Invalid project ID' },
         { status: 400 }
       );
     }
 
-    const project = await Project.findById(params.id);
+    const project = await Project.findById(id);
 
     if (!project) {
       return NextResponse.json(
@@ -41,12 +42,13 @@ export async function GET(
 // PUT update project
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
+    const { id } = await params;
 
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, message: 'Invalid project ID' },
         { status: 400 }
@@ -63,7 +65,7 @@ export async function PUT(
     }
 
     const project = await Project.findByIdAndUpdate(
-      params.id,
+      id,
       { name: body.name },
       { new: true, runValidators: true }
     );
@@ -95,19 +97,20 @@ export async function PUT(
 // DELETE project
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
+    const { id } = await params;
 
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, message: 'Invalid project ID' },
         { status: 400 }
       );
     }
 
-    const project = await Project.findByIdAndDelete(params.id);
+    const project = await Project.findByIdAndDelete(id);
 
     if (!project) {
       return NextResponse.json(
@@ -117,7 +120,7 @@ export async function DELETE(
     }
 
     // Delete all tasks associated with this project
-    await Task.deleteMany({ project_id: params.id });
+    await Task.deleteMany({ project_id: id });
 
     return NextResponse.json(
       {
