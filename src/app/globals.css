@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  @apply bg-slate-950 text-slate-100 antialiased;
+}
+
+a {
+  @apply text-indigo-400 hover:text-indigo-300 transition-colors;
+}
+
+.button-primary {
+  @apply inline-flex items-center justify-center rounded-lg bg-indigo-500 px-4 py-2 font-semibold text-white shadow-sm transition hover:bg-indigo-400 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-300;
+}
+
+.button-ghost {
+  @apply inline-flex items-center justify-center rounded-lg border border-slate-700 px-4 py-2 font-semibold text-slate-200 transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500;
+}
+
+.badge {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+}
+
+.badge-status-draft {
+  @apply badge bg-slate-800 text-slate-200;
+}
+
+.badge-status-in_progress {
+  @apply badge bg-amber-500/20 text-amber-200;
+}
+
+.badge-status-done {
+  @apply badge bg-emerald-500/20 text-emerald-200;
+}
+
+.card {
+  @apply rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm shadow-lg;
+}
+
+.card-hover {
+  @apply transition-transform duration-200 hover:-translate-y-1 hover:shadow-xl;
+}
+
+input,
+select,
+textarea {
+  @apply w-full rounded-xl border border-slate-700 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/40;
+}
+
+label {
+  @apply text-sm font-medium text-slate-300;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f1729;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1f2937;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
