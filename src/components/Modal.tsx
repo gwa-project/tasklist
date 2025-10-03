@@ -57,7 +57,7 @@ export default function Modal({ open, title, description, onClose, children }: M
             className="button-ghost h-10 w-10 rounded-full border border-transparent bg-slate-800/70 p-0 text-slate-300 hover:text-white"
             aria-label="Tutup modal"
           >
-            ×
+            Ã—
           </button>
         </div>
         <div className="mt-6 space-y-4">{children}</div>
