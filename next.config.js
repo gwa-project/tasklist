@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  // output: 'standalone', // Disabled for Cloud Build compatibility
   serverExternalPackages: ['mongoose'],
   images: {
     domains: ['localhost'],
