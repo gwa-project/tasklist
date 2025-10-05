@@ -13,6 +13,8 @@ interface ToastMessage {
   message: string
 }
 
+const numberFormatter = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 })
+
 export default function Dashboard() {
   const [projects, setProjects] = useState<Project[]>([])
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
@@ -32,6 +34,75 @@ export default function Dashboard() {
     () => projects.find((project) => project.id === selectedProjectId) ?? null,
     [projects, selectedProjectId]
   )
+
+  const projectMetrics = useMemo(() => {
+    const total = projects.length
+    const done = projects.filter((project) => project.status === 'done').length
+    const inProgress = projects.filter((project) => project.status === 'in_progress').length
+    const draft = total - done - inProgress
+    const averageProgress = total
+      ? Math.round(
+          projects.reduce((accumulator, project) => accumulator + (project.progress ?? 0), 0) / total
+        )
+      : 0
+
+    return { total, done, inProgress, draft, averageProgress }
+  }, [projects])
+
+  const taskMetrics = useMemo(() => {
+    const total = tasks.length
+    const done = tasks.filter((task) => task.status === 'done').length
+    const inProgress = tasks.filter((task) => task.status === 'in_progress').length
+    const draft = total - done - inProgress
+    const totalWeight = tasks.reduce((sum, task) => sum + task.weight, 0)
+    const completion = selectedProject?.progress ?? 0
+
+    return { total, done, inProgress, draft, totalWeight, completion }
+  }, [tasks, selectedProject])
+
+  const overviewCards = useMemo(
+    () => [
+      {
+        id: 'projects',
+        label: 'Total Project',
+        value: numberFormatter.format(projectMetrics.total),
+        description: ${numberFormatter.format(projectMetrics.inProgress)} project aktif •  draft,
+      },
+      {
+        id: 'progress',
+        label: 'Rata-rata Progress',
+        value: ${projectMetrics.averageProgress}%,
+        description: ${numberFormatter.format(projectMetrics.done)} project selesai,
+      },
+      {
+        id: 'tasks',
+        label: selectedProject ? 'Task dalam Project Ini' : 'Task Aktif',
+        value: numberFormatter.format(taskMetrics.total),
+        description: ${numberFormatter.format(taskMetrics.inProgress)} berjalan •  selesai,
+      },
+      {
+        id: 'weights',
+        label: 'Total Bobot Task',
+        value: numberFormatter.format(taskMetrics.totalWeight),
+        description: selectedProject
+          ? Progress real-time %
+          : 'Pilih project untuk melihat detail task',
+      },
+    ],
+    [projectMetrics, taskMetrics, selectedProject]
+  )
+
+  const heroSubtitle = useMemo(() => {
+    if (selectedProject) {
+      return Sedang meninjau .  task dengan progres %.
+    }
+
+    if (projectMetrics.total > 0) {
+      return Kelola  project dengan progres rata-rata % dan pastikan tidak ada task yang terlewat.
+    }
+
+    return 'Mulai dengan membuat project baru, lalu tambahkan task dan pantau progres secara otomatis.'
+  }, [projectMetrics, selectedProject, taskMetrics.total, taskMetrics.completion])
 
   const loadProjects = useCallback(async (): Promise<Project[]> => {
     setProjectsLoading(true)
@@ -53,7 +124,7 @@ export default function Dashboard() {
       return data
     } catch (error) {
       console.error(error)
-      showToast('error', (error as Error).message || 'Gagal memuat project')
+      showToast('error', 'Gagal memuat project')
       return []
     } finally {
       setProjectsLoading(false)
@@ -64,7 +135,7 @@ export default function Dashboard() {
     async (projectId: string, signal?: AbortSignal): Promise<Task[]> => {
       setTasksLoading(true)
       try {
-        const response = await fetch(`/api/tasks?projectId=${projectId}`, {
+        const response = await fetch(/api/tasks?projectId=, {
           cache: 'no-store',
           signal,
         })
@@ -81,7 +152,7 @@ export default function Dashboard() {
           return []
         }
         console.error(error)
-        showToast('error', (error as Error).message || 'Gagal memuat task')
+        showToast('error', 'Gagal memuat task')
         return []
       } finally {
         setTasksLoading(false)
@@ -153,7 +224,7 @@ export default function Dashboard() {
   const handleUpdateProject = async (projectId: string, payload: ProjectPayload) => {
     setSubmitting(true)
     try {
-      const response = await fetch(`/api/projects/${projectId}`, {
+      const response = await fetch(/api/projects/, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -187,13 +258,13 @@ export default function Dashboard() {
   }
 
   const handleDeleteProject = async (project: Project) => {
-    if (!window.confirm(`Hapus project "${project.name}" beserta semua task di dalamnya?`)) {
+    if (!window.confirm(Hapus project "" beserta seluruh task di dalamnya?)) {
       return
     }
 
     setSubmitting(true)
     try {
-      const response = await fetch(`/api/projects/${project.id}`, {
+      const response = await fetch(/api/projects/, {
         method: 'DELETE',
       })
 
@@ -247,8 +318,6 @@ export default function Dashboard() {
       setSelectedProjectId(targetProjectId)
       if (targetProjectId) {
         await loadTasks(targetProjectId)
-      } else {
-        setTasks([])
       }
     } catch (error) {
       console.error(error)
@@ -261,7 +330,7 @@ export default function Dashboard() {
   const handleUpdateTask = async (taskId: string, payload: TaskPayload) => {
     setSubmitting(true)
     try {
-      const response = await fetch(`/api/tasks/${taskId}`, {
+      const response = await fetch(/api/tasks/, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -296,13 +365,13 @@ export default function Dashboard() {
   }
 
   const handleDeleteTask = async (task: Task) => {
-    if (!window.confirm(`Hapus task "${task.name}"?`)) {
+    if (!window.confirm(Hapus task ""?)) {
       return
     }
 
     setSubmitting(true)
     try {
-      const response = await fetch(`/api/tasks/${task.id}`, {
+      const response = await fetch(/api/tasks/, {
         method: 'DELETE',
       })
 
@@ -337,67 +406,37 @@ export default function Dashboard() {
 
     const tone =
       toast.type === 'success'
-        ? {
-            wrapper: 'border-emerald-400/40 bg-emerald-500/15 text-emerald-100',
-            accent: 'bg-emerald-400/70',
-          }
+        ? 'border border-emerald-400/40 bg-emerald-500/15 text-emerald-100 shadow-emerald-500/30'
         : toast.type === 'error'
-          ? {
-              wrapper: 'border-rose-400/40 bg-rose-500/15 text-rose-100',
-              accent: 'bg-rose-400/70',
-            }
-          : {
-              wrapper: 'border-sky-400/30 bg-sky-500/15 text-sky-100',
-              accent: 'bg-sky-300/70',
-            }
+          ? 'border border-rose-400/40 bg-rose-500/15 text-rose-100 shadow-rose-500/30'
+          : 'border border-slate-400/30 bg-slate-900/90 text-slate-100 shadow-slate-500/10'
 
     return (
       <div
-        className={`fixed right-6 top-6 z-50 flex min-w-[260px] items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium shadow-[0_20px_60px_rgba(8,11,32,0.45)] backdrop-blur ${tone.wrapper}`}
+        className={ixed right-6 top-6 z-[200] inline-flex items-center gap-3 rounded-2xl px-5 py-3 text-sm font-medium shadow-[0_20px_45px_-28px_rgba(59,130,246,0.6)] backdrop-blur-lg }
       >
-        <span className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold uppercase tracking-[0.2em] text-slate-950 ${tone.accent}`}>
-          {toast.type === 'success' ? 'OK' : toast.type === 'error' ? 'ERR' : 'INFO'}
-        </span>
-        <span>{toast.message}</span>
+        {toast.message}
       </div>
     )
   }
 
-  const completedProjects = projects.filter((project) => project.status === 'done').length
-  const averageProgress = projects.length
-    ? Math.round(projects.reduce((sum, project) => sum + (project.progress ?? 0), 0) / projects.length)
-    : 0
-  const focusProjectName = selectedProject?.name ?? 'Belum dipilih'
-
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-40 -top-20 h-[420px] w-[420px] rounded-full bg-indigo-500/25 blur-3xl" />
-        <div className="absolute -right-48 top-1/3 h-[520px] w-[520px] rounded-full bg-sky-500/20 blur-[160px]" />
-        <div className="absolute bottom-[-30%] left-1/2 h-[480px] w-[480px] -translate-x-1/2 rounded-full bg-emerald-500/12 blur-[150px]" />
-      </div>
+    <div className="relative min-h-screen overflow-hidden bg-slate-950">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_farthest-side_at_20%_20%,rgba(99,102,241,0.16),transparent_55%),radial-gradient(circle_farthest-side_at_80%_0%,rgba(45,212,191,0.14),transparent_55%)]" />
 
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-10 px-6 py-12 lg:px-12">
-        <header className="space-y-10 rounded-[42px] border border-white/10 bg-white/[0.04] p-10 shadow-[0_40px_120px_rgba(8,11,32,0.6)] backdrop-blur-xl">
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
-            <div className="max-w-2xl space-y-5">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-slate-200">
-                Tasklist Command Center
-              </span>
-              <h1 className="text-4xl font-semibold text-white lg:text-5xl">
-                Kelola perjalanan project dengan tampilan baru
+      <div className="relative mx-auto flex w-full max-w-7xl flex-col gap-12 px-4 pb-20 pt-16 sm:px-6 lg:px-12">
+        <section className="glass-panel overflow-hidden px-8 py-10 shadow-[0_32px_120px_-60px_rgba(59,130,246,0.6)]">
+          <div className="absolute inset-0 bg-grid-soft opacity-30" aria-hidden="true" />
+          <div className="absolute inset-x-0 -top-32 h-64 bg-[radial-gradient(circle,rgba(99,102,241,0.2)_0%,transparent_65%)] opacity-70" aria-hidden="true" />
+          <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-3xl space-y-5">
+              <span className="pill-label text-[10px]">Project Tasklist</span>
+              <h1 className="text-4xl font-semibold text-white md:text-5xl">
+                Rancang, pantau, dan tuntaskan project dengan antarmuka premium
               </h1>
-              <p className="text-base text-slate-300/85">
-                Rancang alur project, pantau beban kerja, dan arahkan tim pada prioritas terpenting melalui dashboard yang lebih imersif.
-              </p>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300/75">
-                <span className="rounded-full bg-white/10 px-3 py-1 uppercase tracking-[0.3em]">{projects.length} Project</span>
-                <span className="rounded-full bg-white/10 px-3 py-1 uppercase tracking-[0.3em]">
-                  Fokus: {focusProjectName}
-                </span>
-              </div>
+              <p className="subtle-text text-base text-slate-300">{heroSubtitle}</p>
             </div>
-            <div className="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:justify-end lg:w-auto lg:flex-col lg:items-end">
+            <div className="flex flex-wrap items-center gap-3">
               <button type="button" onClick={() => setProjectForm({ mode: 'create' })} className="button-primary">
                 + Project Baru
               </button>
@@ -410,33 +449,25 @@ export default function Dashboard() {
                     showToast('info', 'Buat atau pilih project terlebih dahulu')
                   }
                 }}
-                className="button-soft"
+                className="button-ghost"
               >
                 + Task Baru
               </button>
             </div>
           </div>
+        </section>
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-[26px] border border-white/10 bg-white/[0.05] p-6">
-              <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Rata Progress</p>
-              <p className="mt-3 text-3xl font-semibold text-white">{averageProgress}%</p>
-              <p className="mt-2 text-xs text-slate-300/75">Akumulasi rata-rata progress seluruh project.</p>
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {overviewCards.map((card) => (
+            <div key={card.id} className="stat-card">
+              <p className="kpi-label">{card.label}</p>
+              <p className="mt-4 text-3xl font-semibold text-white">{card.value}</p>
+              <p className="subtle-text mt-2 text-sm">{card.description}</p>
             </div>
-            <div className="rounded-[26px] border border-white/10 bg-white/[0.05] p-6">
-              <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Project Selesai</p>
-              <p className="mt-3 text-3xl font-semibold text-emerald-200">{completedProjects}</p>
-              <p className="mt-2 text-xs text-slate-300/75">Total project yang sudah masuk status selesai.</p>
-            </div>
-            <div className="rounded-[26px] border border-white/10 bg-white/[0.05] p-6">
-              <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Task Aktif</p>
-              <p className="mt-3 text-3xl font-semibold text-sky-200">{tasks.length}</p>
-              <p className="mt-2 text-xs text-slate-300/75">Task pada project terpilih yang sedang dimonitor.</p>
-            </div>
-          </div>
-        </header>
+          ))}
+        </section>
 
-        <div className="grid gap-8 xl:grid-cols-[360px,1fr]">
+        <section className="grid gap-8 xl:grid-cols-[360px,1fr]">
           <ProjectSidebar
             projects={projects}
             selectedProjectId={selectedProjectId}
@@ -466,7 +497,7 @@ export default function Dashboard() {
               void handleDeleteTask(task)
             }}
           />
-        </div>
+        </section>
       </div>
 
       {renderToast()}
@@ -479,7 +510,11 @@ export default function Dashboard() {
           }
         }}
         title={projectForm?.mode === 'edit' ? 'Edit Project' : 'Project Baru'}
-        description={projectForm?.mode === 'edit' ? 'Perbarui detail project yang dipilih.' : 'Isi nama project untuk memulai.'}
+        description={
+          projectForm?.mode === 'edit'
+            ? 'Perbarui detail project yang dipilih berikut dengan cepat.'
+            : 'Isi nama project agar tim Anda dapat mulai merencanakan task.'
+        }
       >
         <ProjectForm
           initialValues={projectForm?.project ? { name: projectForm.project.name } : undefined}
@@ -516,8 +551,8 @@ export default function Dashboard() {
         title={taskForm?.mode === 'edit' ? 'Edit Task' : 'Task Baru'}
         description={
           taskForm?.mode === 'edit'
-            ? 'Perbarui informasi task, ubah status atau pindahkan ke project lain.'
-            : 'Isi detail task untuk ditambahkan ke project yang dipilih.'
+            ? 'Perbarui informasi task, ubah status, atau pindahkan ke project lain sesuai kebutuhan.'
+            : 'Isi detail task untuk ditambahkan ke project yang sedang aktif.'
         }
       >
         <TaskForm

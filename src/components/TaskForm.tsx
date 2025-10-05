@@ -52,6 +52,8 @@ export default function TaskForm({
     [projects]
   )
 
+  const modeLabel = initialValues ? 'Perbarui informasi task agar sejalan dengan progres terbaru tim.' : 'Isi detail task untuk ditambahkan ke project pilihan Anda.'
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -80,27 +82,28 @@ export default function TaskForm({
   }
 
   return (
-    <form className="space-y-7" onSubmit={handleSubmit}>
+    <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="space-y-3">
-        <label htmlFor="task-name" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
-          Task Name
-        </label>
+        <div>
+          <label htmlFor="task-name" className="text-sm font-semibold text-slate-100">
+            Nama Task
+          </label>
+          <p className="subtle-text mt-1">{modeLabel}</p>
+        </div>
         <input
           id="task-name"
           name="name"
           value={name}
           onChange={(event) => setName(event.target.value)}
-          placeholder="Contoh: Rancang flow onboarding"
+          placeholder="Contoh: Rancang dashboard analitik"
           disabled={loading}
-          aria-invalid={Boolean(error)}
+          autoFocus
         />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-3">
-          <label htmlFor="task-project" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
-            Project
-          </label>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div className="space-y-2">
+          <label htmlFor="task-project">Project</label>
           <select
             id="task-project"
             value={projectId}
@@ -116,11 +119,11 @@ export default function TaskForm({
               </option>
             ))}
           </select>
+          <p className="subtle-text text-xs">Task akan otomatis mengikuti progres project yang dipilih.</p>
         </div>
-        <div className="space-y-3">
-          <label htmlFor="task-status" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
-            Status
-          </label>
+
+        <div className="space-y-2">
+          <label htmlFor="task-status">Status</label>
           <select
             id="task-status"
             value={status}
@@ -133,13 +136,12 @@ export default function TaskForm({
               </option>
             ))}
           </select>
+          <p className="subtle-text text-xs">Gunakan status untuk memicu perhitungan progres otomatis.</p>
         </div>
       </div>
 
-      <div className="space-y-3">
-        <label htmlFor="task-weight" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
-          Bobot
-        </label>
+      <div className="space-y-2">
+        <label htmlFor="task-weight">Bobot</label>
         <input
           id="task-weight"
           type="number"
@@ -149,19 +151,22 @@ export default function TaskForm({
           onChange={(event) => setWeight(Number(event.target.value))}
           disabled={loading}
         />
+        <p className="subtle-text text-xs">Bobot membantu menentukan porsi kontribusi task terhadap progres project.</p>
       </div>
 
-      {error ? <p className="text-sm font-medium text-rose-300/90">{error}</p> : null}
+      {error ? <p className="text-sm text-rose-400">{error}</p> : null}
+
+      <div className="divider-soft" />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-2">
-          <button type="button" className="button-soft" onClick={onCancel} disabled={loading}>
+          <button type="button" className="button-ghost" onClick={onCancel} disabled={loading}>
             Batal
           </button>
           {onDelete ? (
             <button
               type="button"
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-rose-500/15 px-4 py-2 text-sm font-semibold text-rose-200 transition duration-200 hover:bg-rose-500/25 disabled:opacity-50"
+              className="inline-flex items-center rounded-xl border border-rose-400/20 bg-rose-500/10 px-4 py-2 text-sm font-semibold text-rose-200 transition hover:-translate-y-0.5 hover:border-rose-300/40 hover:bg-rose-500/15 disabled:cursor-not-allowed disabled:opacity-60"
               onClick={async () => {
                 await onDelete?.()
               }}
@@ -172,9 +177,10 @@ export default function TaskForm({
           ) : null}
         </div>
         <button type="submit" className="button-primary" disabled={loading || projects.length === 0}>
-          {loading ? 'Menyimpan...' : 'Simpan Task'}
+          {loading ? 'Menyimpan...' : initialValues ? 'Simpan Perubahan' : 'Simpan Task'}
         </button>
       </div>
     </form>
   )
 }
+

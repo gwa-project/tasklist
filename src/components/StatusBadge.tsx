@@ -4,31 +4,31 @@ interface StatusBadgeProps {
   status: ProjectStatus
 }
 
-const STATUS_STYLES: Record<ProjectStatus, { label: string; badge: string; dot: string }> = {
-  draft: {
-    label: 'Draft',
-    badge: 'bg-white/10 text-slate-200',
-    dot: 'bg-slate-300',
-  },
-  in_progress: {
-    label: 'In Progress',
-    badge: 'bg-amber-400/20 text-amber-100',
-    dot: 'bg-amber-300',
-  },
-  done: {
-    label: 'Selesai',
-    badge: 'bg-emerald-400/20 text-emerald-100',
-    dot: 'bg-emerald-300',
-  },
+const BADGE_LABELS: Record<ProjectStatus, string> = {
+  draft: 'Draft',
+  in_progress: 'In Progress',
+  done: 'Selesai',
+}
+
+const BADGE_STYLES: Record<ProjectStatus, string> = {
+  draft: 'bg-slate-800/60 text-slate-200 ring-1 ring-inset ring-slate-500/40',
+  in_progress: 'bg-amber-500/15 text-amber-100 ring-1 ring-inset ring-amber-400/40',
+  done: 'bg-emerald-500/15 text-emerald-100 ring-1 ring-inset ring-emerald-400/40',
+}
+
+const DOT_STYLES: Record<ProjectStatus, string> = {
+  draft: 'bg-slate-300/80',
+  in_progress: 'bg-amber-300/80',
+  done: 'bg-emerald-300/80',
 }
 
 export default function StatusBadge({ status }: StatusBadgeProps) {
-  const style = STATUS_STYLES[status]
-
   return (
-    <span className={`badge ${style.badge}`}>
-      <span className={`h-2 w-2 rounded-full ${style.dot}`} />
-      {style.label}
+    <span
+      className={inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] }
+    >
+      <span className={h-2 w-2 rounded-full } />
+      {BADGE_LABELS[status]}
     </span>
   )
 }

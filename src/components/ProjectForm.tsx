@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { ProjectPayload } from '@/types'
 
 interface ProjectFormProps {
@@ -15,6 +15,8 @@ export default function ProjectForm({ initialValues, loading = false, onSubmit, 
   const [name, setName] = useState(initialValues?.name ?? '')
   const [error, setError] = useState('')
 
+  const modeLabel = useMemo(() => (initialValues ? 'Perbarui informasi project di bawah ini.' : 'Isi detail project baru untuk mulai mengelola task dengan rapi.'), [initialValues])
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -28,34 +30,37 @@ export default function ProjectForm({ initialValues, loading = false, onSubmit, 
   }
 
   return (
-    <form className="space-y-7" onSubmit={handleSubmit}>
+    <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="space-y-3">
-        <div className="space-y-1.5">
-          <label htmlFor="project-name" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
-            Project Name
+        <div>
+          <label htmlFor="project-name" className="text-sm font-semibold text-slate-100">
+            Nama Project
           </label>
-          <input
-            id="project-name"
-            name="name"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="Contoh: Peluncuran Aplikasi Mobile"
-            disabled={loading}
-            aria-invalid={Boolean(error)}
-          />
+          <p className="subtle-text mt-1">{modeLabel}</p>
         </div>
-        {error ? <p className="text-sm font-medium text-rose-300/90">{error}</p> : null}
+        <input
+          id="project-name"
+          name="name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          placeholder="Contoh: Redesign landing page Q4"
+          disabled={loading}
+          autoFocus
+        />
+        {error ? <p className="text-sm text-rose-400">{error}</p> : null}
       </div>
+
+      <div className="divider-soft" />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-2">
-          <button type="button" className="button-soft" onClick={onCancel} disabled={loading}>
+          <button type="button" className="button-ghost" onClick={onCancel} disabled={loading}>
             Batal
           </button>
           {onDelete ? (
             <button
               type="button"
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-rose-500/15 px-4 py-2 text-sm font-semibold text-rose-200 transition duration-200 hover:bg-rose-500/25 disabled:opacity-50"
+              className="inline-flex items-center rounded-xl border border-rose-400/20 bg-rose-500/10 px-4 py-2 text-sm font-semibold text-rose-200 transition hover:-translate-y-0.5 hover:border-rose-300/40 hover:bg-rose-500/15 disabled:cursor-not-allowed disabled:opacity-60"
               onClick={async () => {
                 await onDelete?.()
               }}
@@ -66,7 +71,7 @@ export default function ProjectForm({ initialValues, loading = false, onSubmit, 
           ) : null}
         </div>
         <button type="submit" className="button-primary" disabled={loading}>
-          {loading ? 'Menyimpan...' : 'Simpan Project'}
+          {loading ? 'Menyimpan...' : initialValues ? 'Simpan Perubahan' : 'Simpan Project'}
         </button>
       </div>
     </form>
