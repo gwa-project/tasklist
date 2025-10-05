@@ -66,26 +66,26 @@ export default function Dashboard() {
         id: 'projects',
         label: 'Total Project',
         value: numberFormatter.format(projectMetrics.total),
-        description: ${numberFormatter.format(projectMetrics.inProgress)} project aktif •  draft,
+        description: `${numberFormatter.format(projectMetrics.inProgress)} project aktif - ${numberFormatter.format(projectMetrics.draft)} draft`,
       },
       {
         id: 'progress',
         label: 'Rata-rata Progress',
-        value: ${projectMetrics.averageProgress}%,
-        description: ${numberFormatter.format(projectMetrics.done)} project selesai,
+        value: `${projectMetrics.averageProgress}%`,
+        description: `${numberFormatter.format(projectMetrics.done)} project selesai`,
       },
       {
         id: 'tasks',
         label: selectedProject ? 'Task dalam Project Ini' : 'Task Aktif',
         value: numberFormatter.format(taskMetrics.total),
-        description: ${numberFormatter.format(taskMetrics.inProgress)} berjalan •  selesai,
+        description: `${numberFormatter.format(taskMetrics.inProgress)} berjalan - ${numberFormatter.format(taskMetrics.done)} selesai`,
       },
       {
         id: 'weights',
         label: 'Total Bobot Task',
         value: numberFormatter.format(taskMetrics.totalWeight),
         description: selectedProject
-          ? Progress real-time %
+          ? `Progress real-time ${taskMetrics.completion}%`
           : 'Pilih project untuk melihat detail task',
       },
     ],
@@ -94,11 +94,11 @@ export default function Dashboard() {
 
   const heroSubtitle = useMemo(() => {
     if (selectedProject) {
-      return Sedang meninjau .  task dengan progres %.
+      return `Sedang meninjau ${selectedProject.name}. ${numberFormatter.format(taskMetrics.total)} task dengan progres ${taskMetrics.completion}%.`
     }
 
     if (projectMetrics.total > 0) {
-      return Kelola  project dengan progres rata-rata % dan pastikan tidak ada task yang terlewat.
+      return `Kelola ${numberFormatter.format(projectMetrics.total)} project dengan progres rata-rata ${projectMetrics.averageProgress}% dan pastikan tidak ada task yang terlewat.`
     }
 
     return 'Mulai dengan membuat project baru, lalu tambahkan task dan pantau progres secara otomatis.'
@@ -135,7 +135,7 @@ export default function Dashboard() {
     async (projectId: string, signal?: AbortSignal): Promise<Task[]> => {
       setTasksLoading(true)
       try {
-        const response = await fetch(/api/tasks?projectId=, {
+        const response = await fetch(`/api/tasks?projectId=${projectId}`, {
           cache: 'no-store',
           signal,
         })
@@ -224,7 +224,7 @@ export default function Dashboard() {
   const handleUpdateProject = async (projectId: string, payload: ProjectPayload) => {
     setSubmitting(true)
     try {
-      const response = await fetch(/api/projects/, {
+      const response = await fetch(`/api/projects/${projectId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -258,13 +258,13 @@ export default function Dashboard() {
   }
 
   const handleDeleteProject = async (project: Project) => {
-    if (!window.confirm(Hapus project "" beserta seluruh task di dalamnya?)) {
+    if (!window.confirm(`Hapus project "${project.name}" beserta seluruh task di dalamnya?`)) {
       return
     }
 
     setSubmitting(true)
     try {
-      const response = await fetch(/api/projects/, {
+      const response = await fetch(`/api/projects/${project.id}`, {
         method: 'DELETE',
       })
 
@@ -330,7 +330,7 @@ export default function Dashboard() {
   const handleUpdateTask = async (taskId: string, payload: TaskPayload) => {
     setSubmitting(true)
     try {
-      const response = await fetch(/api/tasks/, {
+      const response = await fetch(`/api/tasks/${taskId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -365,13 +365,13 @@ export default function Dashboard() {
   }
 
   const handleDeleteTask = async (task: Task) => {
-    if (!window.confirm(Hapus task ""?)) {
+    if (!window.confirm(`Hapus task "${task.name}"?`)) {
       return
     }
 
     setSubmitting(true)
     try {
-      const response = await fetch(/api/tasks/, {
+      const response = await fetch(`/api/tasks/${task.id}`, {
         method: 'DELETE',
       })
 
@@ -413,7 +413,7 @@ export default function Dashboard() {
 
     return (
       <div
-        className={ixed right-6 top-6 z-[200] inline-flex items-center gap-3 rounded-2xl px-5 py-3 text-sm font-medium shadow-[0_20px_45px_-28px_rgba(59,130,246,0.6)] backdrop-blur-lg }
+        className={`fixed right-6 top-6 z-[200] inline-flex items-center gap-3 rounded-2xl px-5 py-3 text-sm font-medium shadow-[0_20px_45px_-28px_rgba(59,130,246,0.6)] backdrop-blur-lg ${tone}`}
       >
         {toast.message}
       </div>

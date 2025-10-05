@@ -108,7 +108,11 @@ export default function ProjectSidebar({
                         onSelect(project.id)
                       }
                     }}
-                    className={group relative cursor-pointer select-none overflow-hidden rounded-3xl border px-5 py-5 transition }
+                    className={`group relative cursor-pointer select-none overflow-hidden rounded-3xl border px-5 py-5 transition ${
+                      isActive
+                        ? 'border-indigo-400/50 bg-gradient-to-br from-indigo-500/10 via-slate-900/70 to-slate-950 ring-1 ring-indigo-400/40'
+                        : 'border-white/10 bg-slate-950/40 hover:border-slate-300/20 hover:bg-slate-900/70'
+                    }`}
                   >
                     <div className="absolute inset-0 bg-grid-soft opacity-0 transition-opacity duration-200 group-hover:opacity-50" aria-hidden="true" />
 
@@ -155,7 +159,7 @@ export default function ProjectSidebar({
                         <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
                           <div
                             className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-sky-400 to-purple-500 transition-all duration-300"
-                            style={{ width: ${Math.min(project.progress, 100)}% }}
+                            style={{ width: `${Math.min(project.progress, 100)}%` }}
                           />
                         </div>
                       </div>

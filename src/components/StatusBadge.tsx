@@ -25,9 +25,9 @@ const DOT_STYLES: Record<ProjectStatus, string> = {
 export default function StatusBadge({ status }: StatusBadgeProps) {
   return (
     <span
-      className={inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] }
+      className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${BADGE_STYLES[status]}`}
     >
-      <span className={h-2 w-2 rounded-full } />
+      <span className={`h-2 w-2 rounded-full ${DOT_STYLES[status]}`} />
       {BADGE_LABELS[status]}
     </span>
   )

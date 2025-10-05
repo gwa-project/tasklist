@@ -26,8 +26,7 @@ export default function TaskBoard({ project, tasks, loading, onCreateTask, onEdi
           <span className="pill-label text-[10px]">Taskboard</span>
           <h2 className="text-3xl font-semibold text-white">Pilih Project Terlebih Dahulu</h2>
           <p className="subtle-text text-sm">
-            Pilih salah satu project di panel kiri, atau buat project baru untuk mulai membangun alur kerja dan task yang
-            lebih terstruktur.
+            Pilih salah satu project di panel kiri, atau buat project baru untuk mulai membangun alur kerja yang lebih terstruktur.
           </p>
         </div>
       </section>
@@ -114,7 +113,7 @@ export default function TaskBoard({ project, tasks, loading, onCreateTask, onEdi
 
       <div className="flex flex-wrap items-center gap-3 px-8 py-4 text-xs text-slate-300">
         {statusChips.map((chip) => (
-          <span key={chip.label} className={inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-[11px] }>
+          <span key={chip.label} className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-[11px] ${chip.accent}`}>
             <span className="font-semibold uppercase tracking-[0.24em]">{chip.label}</span>
             <span className="text-sm font-semibold">{chip.value}</span>
           </span>
