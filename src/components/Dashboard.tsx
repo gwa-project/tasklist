@@ -421,24 +421,46 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-950">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_farthest-side_at_20%_20%,rgba(99,102,241,0.16),transparent_55%),radial-gradient(circle_farthest-side_at_80%_0%,rgba(45,212,191,0.14),transparent_55%)]" />
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      {/* Enhanced background effects */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(99,102,241,0.25),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(168,85,247,0.2),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(45,212,191,0.15),transparent_60%)]" />
+        <div className="absolute inset-0 bg-grid-soft opacity-20" />
+      </div>
 
-      <div className="relative mx-auto flex w-full max-w-7xl flex-col gap-12 px-4 pb-20 pt-16 sm:px-6 lg:px-12">
-        <section className="glass-panel overflow-hidden px-8 py-10 shadow-[0_32px_120px_-60px_rgba(59,130,246,0.6)]">
-          <div className="absolute inset-0 bg-grid-soft opacity-30" aria-hidden="true" />
-          <div className="absolute inset-x-0 -top-32 h-64 bg-[radial-gradient(circle,rgba(99,102,241,0.2)_0%,transparent_65%)] opacity-70" aria-hidden="true" />
+      <div className="relative mx-auto flex w-full max-w-[1600px] flex-col gap-8 px-4 pb-20 pt-12 sm:px-6 lg:px-10">
+        {/* Hero Section - Redesigned */}
+        <section className="hero-panel overflow-hidden px-10 py-12">
+          <div className="absolute inset-0 bg-grid-soft opacity-15" aria-hidden="true" />
+          <div className="absolute inset-x-0 -top-40 h-80 bg-[radial-gradient(circle,rgba(99,102,241,0.3)_0%,transparent_70%)]" aria-hidden="true" />
+          <div className="absolute inset-x-0 -bottom-40 h-80 bg-[radial-gradient(circle,rgba(168,85,247,0.25)_0%,transparent_70%)]" aria-hidden="true" />
+
           <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-3xl space-y-5">
-              <span className="pill-label text-[10px]">Project Tasklist</span>
-              <h1 className="text-4xl font-semibold text-white md:text-5xl">
-                Rancang, pantau, dan tuntaskan project dengan antarmuka premium
+            <div className="max-w-3xl space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-indigo-400/40 bg-indigo-500/10 px-4 py-2 backdrop-blur-sm">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500"></span>
+                </span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-indigo-100">Project Tasklist</span>
+              </div>
+              <h1 className="bg-gradient-to-r from-white via-indigo-100 to-purple-100 bg-clip-text text-5xl font-bold leading-tight text-transparent md:text-6xl">
+                Kelola Project dengan Mudah & Efisien
               </h1>
-              <p className="subtle-text text-base text-slate-300">{heroSubtitle}</p>
+              <p className="text-lg leading-relaxed text-slate-300">{heroSubtitle}</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <button type="button" onClick={() => setProjectForm({ mode: 'create' })} className="button-primary">
-                + Project Baru
+              <button
+                type="button"
+                onClick={() => setProjectForm({ mode: 'create' })}
+                className="button-primary group"
+              >
+                <svg className="h-5 w-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Project Baru
               </button>
               <button
                 type="button"
@@ -449,25 +471,36 @@ export default function Dashboard() {
                     showToast('info', 'Buat atau pilih project terlebih dahulu')
                   }
                 }}
-                className="button-ghost"
+                className="button-secondary group"
               >
-                + Task Baru
+                <svg className="h-5 w-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Task Baru
               </button>
             </div>
           </div>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {overviewCards.map((card) => (
-            <div key={card.id} className="stat-card">
-              <p className="kpi-label">{card.label}</p>
-              <p className="mt-4 text-3xl font-semibold text-white">{card.value}</p>
-              <p className="subtle-text mt-2 text-sm">{card.description}</p>
+        {/* Stats Cards - Enhanced */}
+        <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          {overviewCards.map((card, index) => (
+            <div
+              key={card.id}
+              className="stat-card group"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <div className="relative z-10 space-y-4">
+                <p className="kpi-label">{card.label}</p>
+                <p className="text-4xl font-bold tracking-tight text-white">{card.value}</p>
+                <p className="subtle-text text-sm leading-relaxed">{card.description}</p>
+              </div>
             </div>
           ))}
         </section>
 
-        <section className="grid gap-8 xl:grid-cols-[360px,1fr]">
+        {/* Main Content Grid - Enhanced */}
+        <section className="grid gap-6 xl:grid-cols-[380px,1fr]">
           <ProjectSidebar
             projects={projects}
             selectedProjectId={selectedProjectId}

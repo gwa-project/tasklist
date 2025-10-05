@@ -47,31 +47,35 @@ export default function ProjectSidebar({
   return (
     <aside className="glass-panel flex h-full w-full flex-col overflow-hidden">
       <div className="border-b border-white/10 px-6 py-6">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <span className="pill-label text-[10px]">Projects</span>
-              <h2 className="mt-2 text-2xl font-semibold text-white">Panel Project</h2>
-              <p className="subtle-text mt-1">
-                Kelola daftar project, lihat status, dan lompat cepat ke task terkait.
+        <div className="flex flex-col gap-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-500/10 px-3 py-1.5">
+                <svg className="h-4 w-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                </svg>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-indigo-200">Projects</span>
+              </div>
+              <h2 className="text-2xl font-bold text-white">Daftar Project</h2>
+              <p className="subtle-text text-sm">
+                Kelola dan monitor progress semua project Anda
               </p>
             </div>
-            <button type="button" onClick={onCreateProject} className="button-primary whitespace-nowrap">
-              + Project Baru
-            </button>
           </div>
 
           <div className="relative">
+            <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center">
+              <svg className="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Cari project berdasarkan nama"
-              className="pl-4 pr-12"
+              placeholder="Cari project..."
+              className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-12 pr-4 text-sm text-white placeholder-slate-400 backdrop-blur-sm transition-all focus:border-indigo-400/50 focus:bg-white/10"
               disabled={loading || projects.length === 0}
             />
-            <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-xs uppercase tracking-[0.32em] text-slate-500">
-              Cari
-            </span>
           </div>
         </div>
       </div>
@@ -108,35 +112,38 @@ export default function ProjectSidebar({
                         onSelect(project.id)
                       }
                     }}
-                    className={`group relative cursor-pointer select-none overflow-hidden rounded-3xl border px-5 py-5 transition ${
+                    className={`group relative cursor-pointer select-none overflow-hidden rounded-2xl border px-5 py-4 transition-all duration-300 ${
                       isActive
-                        ? 'border-indigo-400/50 bg-gradient-to-br from-indigo-500/10 via-slate-900/70 to-slate-950 ring-1 ring-indigo-400/40'
-                        : 'border-white/10 bg-slate-950/40 hover:border-slate-300/20 hover:bg-slate-900/70'
+                        ? 'border-indigo-400/60 bg-gradient-to-br from-indigo-500/15 via-purple-500/10 to-transparent shadow-lg shadow-indigo-500/20'
+                        : 'border-white/10 bg-slate-900/40 hover:border-indigo-300/30 hover:bg-slate-900/60 hover:shadow-md'
                     }`}
                   >
-                    <div className="absolute inset-0 bg-grid-soft opacity-0 transition-opacity duration-200 group-hover:opacity-50" aria-hidden="true" />
+                    <div className="absolute inset-0 bg-grid-soft opacity-0 transition-opacity duration-200 group-hover:opacity-30" aria-hidden="true" />
+                    {isActive && (
+                      <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-indigo-400 to-purple-500" />
+                    )}
 
                     <div className="relative flex flex-col gap-4">
                       <div className="flex items-start justify-between gap-3">
-                        <div className="space-y-2">
-                          <h3 className="text-lg font-semibold text-white">{project.name}</h3>
-                          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                        <div className="flex-1 space-y-2">
+                          <h3 className="text-base font-bold text-white transition-colors group-hover:text-indigo-100">{project.name}</h3>
+                          <div className="flex flex-wrap items-center gap-2">
                             <StatusBadge status={project.status} />
-                            <span className="rounded-full border border-white/10 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-slate-400">
-                              Progress {project.progress}%
-                            </span>
                           </div>
                         </div>
-                        <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           <button
                             type="button"
                             onClick={(event) => {
                               event.stopPropagation()
                               onAddTask(project)
                             }}
-                            className="button-ghost h-9 rounded-full border-white/15 bg-white/5 px-4 text-xs"
+                            className="rounded-lg border border-white/15 bg-white/5 p-2 transition-all hover:border-indigo-300/30 hover:bg-indigo-500/10"
+                            title="Tambah Task"
                           >
-                            + Task
+                            <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
                           </button>
                           <button
                             type="button"
@@ -144,24 +151,28 @@ export default function ProjectSidebar({
                               event.stopPropagation()
                               onEditProject(project)
                             }}
-                            className="button-ghost h-9 rounded-full border-white/15 bg-white/5 px-4 text-xs"
+                            className="rounded-lg border border-white/15 bg-white/5 p-2 transition-all hover:border-indigo-300/30 hover:bg-indigo-500/10"
+                            title="Edit Project"
                           >
-                            Edit
+                            <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
                           </button>
                         </div>
                       </div>
 
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between text-xs text-slate-400">
-                          <span>Timeline progres</span>
-                          <span>Pembaruan {updatedLabel}</span>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-medium text-slate-400">Progress</span>
+                          <span className="font-bold text-white">{project.progress}%</span>
                         </div>
                         <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
                           <div
-                            className="h-full rounded-full bg-gradient-to-r from-indigo-400 via-sky-400 to-purple-500 transition-all duration-300"
+                            className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-sm shadow-indigo-500/50 transition-all duration-500"
                             style={{ width: `${Math.min(project.progress, 100)}%` }}
                           />
                         </div>
+                        <p className="text-xs text-slate-400">Diperbarui {updatedLabel}</p>
                       </div>
                     </div>
                   </div>
