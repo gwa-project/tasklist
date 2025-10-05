@@ -332,7 +332,7 @@ export default function DashboardNew() {
             <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>Loading...</div>
           ) : projects.length === 0 ? (
             <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-              Belum ada project. Klik "Add Project" untuk membuat project baru.
+              Belum ada project. Klik &quot;Add Project&quot; untuk membuat project baru.
             </div>
           ) : (
             projects.map((project) => (
