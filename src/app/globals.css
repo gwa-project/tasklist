@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 html,
@@ -12,68 +12,88 @@ body {
 }
 
 body {
-  @apply bg-slate-950 text-slate-100 antialiased;
+  background-color: #020617;
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(129, 140, 248, 0.18), transparent 50%),
+    radial-gradient(circle at 85% 0%, rgba(59, 130, 246, 0.15), transparent 55%),
+    radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.12), transparent 56%),
+    linear-gradient(140deg, rgba(2, 6, 23, 1) 0%, rgba(15, 23, 42, 0.98) 45%, rgba(15, 23, 42, 0.92) 100%);
+  background-attachment: fixed;
+  @apply text-slate-100 antialiased;
 }
 
 a {
-  @apply text-indigo-400 hover:text-indigo-300 transition-colors;
+  @apply text-sky-300 transition-colors duration-200 hover:text-sky-200;
 }
 
 .button-primary {
-  @apply inline-flex items-center justify-center rounded-lg bg-indigo-500 px-4 py-2 font-semibold text-white shadow-sm transition hover:bg-indigo-400 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-300;
+  @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-sky-400 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-500/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-300;
 }
 
 .button-ghost {
-  @apply inline-flex items-center justify-center rounded-lg border border-slate-700 px-4 py-2 font-semibold text-slate-200 transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500;
+  @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-slate-200 transition duration-200 hover:bg-white/10 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500;
+}
+
+.button-soft {
+  @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900/70 px-4 py-2 text-sm font-medium text-slate-200 shadow-inner shadow-slate-900/60 transition duration-200 hover:bg-slate-800/70;
 }
 
 .badge {
-  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-wide;
 }
 
 .badge-status-draft {
-  @apply badge bg-slate-800 text-slate-200;
+  @apply badge bg-slate-800/80 text-slate-200;
 }
 
 .badge-status-in_progress {
-  @apply badge bg-amber-500/20 text-amber-200;
+  @apply badge bg-amber-400/20 text-amber-200;
 }
 
 .badge-status-done {
-  @apply badge bg-emerald-500/20 text-emerald-200;
+  @apply badge bg-emerald-400/20 text-emerald-200;
 }
 
 .card {
-  @apply rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm shadow-lg;
+  @apply rounded-[28px] border border-white/10 bg-white/[0.03] shadow-[0_20px_60px_rgba(8,11,32,0.45)] backdrop-blur-xl;
 }
 
 .card-hover {
-  @apply transition-transform duration-200 hover:-translate-y-1 hover:shadow-xl;
+  @apply transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_24px_70px_rgba(14,18,40,0.6)];
 }
 
 input,
 select,
 textarea {
-  @apply w-full rounded-xl border border-slate-700 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/40;
+  @apply w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-100 placeholder:text-slate-400 transition duration-200 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/40;
+}
+
+select option {
+  color: #0f172a;
 }
 
 label {
-  @apply text-sm font-medium text-slate-300;
+  @apply text-sm font-medium text-slate-200;
+}
+
+::selection {
+  background-color: rgba(99, 102, 241, 0.35);
+  color: #f8fafc;
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 9px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f1729;
+  background: rgba(15, 23, 42, 0.55);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1f2937;
+  background: rgba(99, 102, 241, 0.45);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: rgba(99, 102, 241, 0.8);
 }
