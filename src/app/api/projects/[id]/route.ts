@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
-import Project from '@/models/Project';
-import Task from '@/models/Task';
+import Project from '@/lib/models/Project';
+import Task from '@/lib/models/Task';
 import mongoose from 'mongoose';
+import { getSession } from '@/lib/auth';
 
 // GET single project
 export async function GET(
@@ -10,6 +11,15 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getSession();
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     await connectDB();
     const { id } = await params;
 
@@ -20,7 +30,7 @@ export async function GET(
       );
     }
 
-    const project = await Project.findById(id);
+    const project = await Project.findOne({ _id: id, userId: session.userId });
 
     if (!project) {
       return NextResponse.json(
@@ -29,7 +39,7 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(project, { status: 200 });
+    return NextResponse.json(project.toJSON(), { status: 200 });
   } catch (error) {
     console.error('Error fetching project:', error);
     return NextResponse.json(
@@ -45,6 +55,15 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getSession();
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     await connectDB();
     const { id } = await params;
 
@@ -64,8 +83,8 @@ export async function PUT(
       );
     }
 
-    const project = await Project.findByIdAndUpdate(
-      id,
+    const project = await Project.findOneAndUpdate(
+      { _id: id, userId: session.userId },
       { name: body.name },
       { new: true, runValidators: true }
     );
@@ -81,7 +100,7 @@ export async function PUT(
       {
         success: true,
         message: 'Project berhasil diupdate',
-        data: project,
+        data: project.toJSON(),
       },
       { status: 200 }
     );
@@ -100,6 +119,15 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getSession();
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     await connectDB();
     const { id } = await params;
 
@@ -110,7 +138,7 @@ export async function DELETE(
       );
     }
 
-    const project = await Project.findByIdAndDelete(id);
+    const project = await Project.findOneAndDelete({ _id: id, userId: session.userId });
 
     if (!project) {
       return NextResponse.json(
@@ -120,7 +148,7 @@ export async function DELETE(
     }
 
     // Delete all tasks associated with this project
-    await Task.deleteMany({ project_id: id });
+    await Task.deleteMany({ project: id });
 
     return NextResponse.json(
       {

@@ -1,10 +1,11 @@
-import { Schema, model, models } from 'mongoose'
+import { Schema, model, models, Types } from 'mongoose'
 import type { ProjectStatus } from '@/types'
 
 export interface ProjectDocument {
   name: string
   status: ProjectStatus
   progress: number
+  userId: Types.ObjectId
   createdAt: Date
   updatedAt: Date
 }
@@ -34,6 +35,11 @@ const projectSchema = new Schema<ProjectDocument>(
 
         return Number(value.toFixed(1))
       },
+    },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
     },
   },
   {

@@ -5,8 +5,18 @@ import Task from '@/lib/models/Task'
 import Project from '@/lib/models/Project'
 import { recalculateProjectAggregates } from '@/lib/services/project'
 import { TASK_STATUSES } from '@/lib/constants'
+import { getSession } from '@/lib/auth'
 
 export async function GET(request: Request) {
+  const session = await getSession()
+
+  if (!session) {
+    return NextResponse.json(
+      { success: false, message: 'Unauthorized' },
+      { status: 401 }
+    )
+  }
+
   await connectDB()
 
   const { searchParams } = new URL(request.url)
@@ -21,6 +31,12 @@ export async function GET(request: Request) {
       return NextResponse.json([], { status: 200 })
     }
 
+    // Verify project belongs to user
+    const project = await Project.findOne({ _id: normalizedProjectId, userId: session.userId })
+    if (!project) {
+      return NextResponse.json([], { status: 200 })
+    }
+
     query.project = normalizedProjectId
   }
 
@@ -31,6 +47,15 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const session = await getSession()
+
+  if (!session) {
+    return NextResponse.json(
+      { success: false, message: 'Unauthorized' },
+      { status: 401 }
+    )
+  }
+
   await connectDB()
 
   const body = await request.json().catch(() => null)
@@ -70,9 +95,10 @@ export async function POST(request: Request) {
     )
   }
 
-  const projectExists = await Project.exists({ _id: projectId })
+  // Verify project belongs to user
+  const project = await Project.findOne({ _id: projectId, userId: session.userId })
 
-  if (!projectExists) {
+  if (!project) {
     return NextResponse.json({ success: false, message: 'Project tidak ditemukan' }, { status: 404 })
   }
 

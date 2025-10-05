@@ -6,6 +6,7 @@ import TaskBoard from './TaskBoard'
 import Modal from './Modal'
 import ProjectForm from './ProjectForm'
 import TaskForm from './TaskForm'
+import UserMenu from './UserMenu'
 import type { Project, ProjectPayload, Task, TaskPayload } from '@/types'
 
 interface ToastMessage {
@@ -437,8 +438,8 @@ export default function Dashboard() {
           <div className="absolute inset-x-0 -top-40 h-80 bg-[radial-gradient(circle,rgba(99,102,241,0.3)_0%,transparent_70%)]" aria-hidden="true" />
           <div className="absolute inset-x-0 -bottom-40 h-80 bg-[radial-gradient(circle,rgba(168,85,247,0.25)_0%,transparent_70%)]" aria-hidden="true" />
 
-          <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-3xl space-y-6">
+          <div className="relative space-y-8">
+            <div className="flex items-center justify-between">
               <div className="inline-flex items-center gap-2 rounded-full border border-indigo-400/40 bg-indigo-500/10 px-4 py-2 backdrop-blur-sm">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75"></span>
@@ -446,38 +447,44 @@ export default function Dashboard() {
                 </span>
                 <span className="text-xs font-semibold uppercase tracking-wider text-indigo-100">Project Tasklist</span>
               </div>
-              <h1 className="bg-gradient-to-r from-white via-indigo-100 to-purple-100 bg-clip-text text-5xl font-bold leading-tight text-transparent md:text-6xl">
-                Kelola Project dengan Mudah & Efisien
-              </h1>
-              <p className="text-lg leading-relaxed text-slate-300">{heroSubtitle}</p>
+              <UserMenu />
             </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setProjectForm({ mode: 'create' })}
-                className="button-primary group"
-              >
-                <svg className="h-5 w-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Project Baru
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (selectedProject) {
-                    setTaskForm({ mode: 'create' })
-                  } else {
-                    showToast('info', 'Buat atau pilih project terlebih dahulu')
-                  }
-                }}
-                className="button-secondary group"
-              >
-                <svg className="h-5 w-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Task Baru
-              </button>
+
+            <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-3xl space-y-6">
+                <h1 className="bg-gradient-to-r from-white via-indigo-100 to-purple-100 bg-clip-text text-5xl font-bold leading-tight text-transparent md:text-6xl">
+                  Kelola Project dengan Mudah & Efisien
+                </h1>
+                <p className="text-lg leading-relaxed text-slate-300">{heroSubtitle}</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setProjectForm({ mode: 'create' })}
+                  className="button-primary group"
+                >
+                  <svg className="h-5 w-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Project Baru
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (selectedProject) {
+                      setTaskForm({ mode: 'create' })
+                    } else {
+                      showToast('info', 'Buat atau pilih project terlebih dahulu')
+                    }
+                  }}
+                  className="button-secondary group"
+                >
+                  <svg className="h-5 w-5 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Task Baru
+                </button>
+              </div>
             </div>
           </div>
         </section>
