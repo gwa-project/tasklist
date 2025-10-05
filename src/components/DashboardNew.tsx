@@ -1,8 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { Project, ProjectPayload, Task, TaskPayload } from '@/types'
+import type { Project, Task } from '@/types'
 
 interface ToastMessage {
   type: 'success' | 'error' | 'info'
@@ -16,7 +16,6 @@ export default function DashboardNew() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [user, setUser] = useState<any>(null)
   const [projectsLoading, setProjectsLoading] = useState(true)
-  const [tasksLoading, setTasksLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
   // Form states
@@ -81,7 +80,6 @@ export default function DashboardNew() {
 
   const loadTasks = useCallback(
     async (projectId: string) => {
-      setTasksLoading(true)
       try {
         const response = await fetch(`/api/tasks?projectId=${projectId}`, {
           cache: 'no-store',
@@ -98,8 +96,6 @@ export default function DashboardNew() {
         console.error(error)
         showToast('error', 'Gagal memuat task')
         return []
-      } finally {
-        setTasksLoading(false)
       }
     },
     [showToast]
@@ -380,7 +376,7 @@ export default function DashboardNew() {
                     <div className="tasks-container">
                       {getProjectTasks(project.id).length === 0 ? (
                         <p style={{ padding: '10px', color: '#666', fontStyle: 'italic' }}>
-                          No tasks yet
+                          Belum ada task
                         </p>
                       ) : (
                         getProjectTasks(project.id).map((task) => (
