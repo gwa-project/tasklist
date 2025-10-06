@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
-import Task from '@/models/Task';
-import Project from '@/models/Project';
+import Task from '@/lib/models/Task';
+import Project from '@/lib/models/Project';
 import mongoose from 'mongoose';
+import { getSession } from '@/lib/auth';
+import { recalculateProjectAggregates } from '@/lib/services/project';
 
 // GET single task
 export async function GET(
@@ -10,6 +12,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     await connectDB();
     const { id } = await params;
 
@@ -20,7 +30,7 @@ export async function GET(
       );
     }
 
-    const task = await Task.findById(id).populate('project_id', 'name');
+    const task = await Task.findById(id).populate('project');
 
     if (!task) {
       return NextResponse.json(
@@ -29,7 +39,16 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(task, { status: 200 });
+    // Verify task belongs to user's project
+    const project = await Project.findOne({ _id: task.project, userId: session.userId });
+    if (!project) {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized' },
+        { status: 403 }
+      );
+    }
+
+    return NextResponse.json(task.toJSON(), { status: 200 });
   } catch (error) {
     console.error('Error fetching task:', error);
     return NextResponse.json(
@@ -45,6 +64,14 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     await connectDB();
     const { id } = await params;
 
@@ -72,7 +99,8 @@ export async function PUT(
       );
     }
 
-    if (!body.project_id || !mongoose.Types.ObjectId.isValid(body.project_id)) {
+    const projectIdInput = body.projectId || body.project_id;
+    if (!projectIdInput || !mongoose.Types.ObjectId.isValid(projectIdInput)) {
       return NextResponse.json(
         { success: false, message: 'Valid project ID is required' },
         { status: 400 }
@@ -86,12 +114,29 @@ export async function PUT(
       );
     }
 
-    // Check if project exists
-    const project = await Project.findById(body.project_id);
+    // Verify project belongs to user
+    const project = await Project.findOne({ _id: projectIdInput, userId: session.userId });
     if (!project) {
       return NextResponse.json(
-        { success: false, message: 'Project not found' },
+        { success: false, message: 'Project not found or unauthorized' },
         { status: 404 }
+      );
+    }
+
+    // Verify task exists and belongs to user's project
+    const existingTask = await Task.findById(id);
+    if (!existingTask) {
+      return NextResponse.json(
+        { success: false, message: 'Task not found' },
+        { status: 404 }
+      );
+    }
+
+    const existingProject = await Project.findOne({ _id: existingTask.project, userId: session.userId });
+    if (!existingProject) {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized' },
+        { status: 403 }
       );
     }
 
@@ -100,11 +145,11 @@ export async function PUT(
       {
         name: body.name,
         status: body.status,
-        project_id: body.project_id,
+        project: projectIdInput,
         weight: body.weight,
       },
       { new: true, runValidators: true }
-    ).populate('project_id', 'name');
+    ).populate('project');
 
     if (!task) {
       return NextResponse.json(
@@ -114,13 +159,13 @@ export async function PUT(
     }
 
     // Update project progress
-    await updateProjectProgress(body.project_id);
+    await recalculateProjectAggregates(projectIdInput);
 
     return NextResponse.json(
       {
         success: true,
         message: 'Task berhasil diupdate',
-        data: task,
+        data: task.toJSON(),
       },
       { status: 200 }
     );
@@ -139,6 +184,14 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     await connectDB();
     const { id } = await params;
 
@@ -158,11 +211,20 @@ export async function DELETE(
       );
     }
 
-    const projectId = task.project_id.toString();
+    // Verify task belongs to user's project
+    const project = await Project.findOne({ _id: task.project, userId: session.userId });
+    if (!project) {
+      return NextResponse.json(
+        { success: false, message: 'Unauthorized' },
+        { status: 403 }
+      );
+    }
+
+    const projectId = task.project.toString();
     await Task.findByIdAndDelete(id);
 
     // Update project progress after deletion
-    await updateProjectProgress(projectId);
+    await recalculateProjectAggregates(projectId);
 
     return NextResponse.json(
       {
@@ -178,41 +240,4 @@ export async function DELETE(
       { status: 500 }
     );
   }
-}
-
-// Helper function to update project progress
-async function updateProjectProgress(projectId: string) {
-  const tasks = await Task.find({ project_id: projectId });
-
-  if (tasks.length === 0) {
-    await Project.findByIdAndUpdate(projectId, {
-      description_progress: 0.0,
-      status: 'draft',
-    });
-    return;
-  }
-
-  const totalWeight = tasks.reduce((sum, task) => sum + task.weight, 0);
-  const completedWeight = tasks
-    .filter((task) => task.status === 'done')
-    .reduce((sum, task) => sum + task.weight, 0);
-
-  const percentage = totalWeight > 0 ? (completedWeight / totalWeight) * 100 : 0;
-  const progress = Math.floor(percentage * 10) / 10; // Round down to 1 decimal
-
-  // Calculate status
-  const allDone = tasks.every((task) => task.status === 'done');
-  const hasInProgress = tasks.some((task) => task.status === 'in_progress');
-
-  let status = 'draft';
-  if (allDone) {
-    status = 'done';
-  } else if (hasInProgress) {
-    status = 'in_progress';
-  }
-
-  await Project.findByIdAndUpdate(projectId, {
-    description_progress: progress,
-    status: status,
-  });
 }
